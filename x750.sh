@@ -85,7 +85,6 @@ import os
 import subprocess
 
 def readVoltage(bus):
-
     address = 0x36
     read = bus.read_word_data(address, 2)
     swapped = struct.unpack("<H", struct.pack(">H", read))[0]
@@ -93,7 +92,6 @@ def readVoltage(bus):
     return voltage
 
 def readCapacity(bus):
-
     address = 0x36
     read = bus.read_word_data(address, 4)
     swapped = struct.unpack("<H", struct.pack(">H", read))[0]
@@ -102,7 +100,7 @@ def readCapacity(bus):
 	
 def powerLog(logFile):
 	logInfo = time.strftime("%Y%m%j_%H%M%S",time.localtime()) + ",{:.2f}".format(tempVoltage) + ",{:.1f}\n".format(tempCapacity)
-    logFile.write(logInfo)
+	logFile.write(logInfo)
 
 bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
 
@@ -115,7 +113,7 @@ try:
 	
     currentStatus = ""
     dateString = time.strftime("X750Log_%Y%m%j_%H%M%S.csv", time.localtime())
-    logFile = open(dateString,'w')
+	logFile = open(dateString,'w')
 
     previousVoltage = readVoltage(bus)
     previousCapacity = readCapacity(bus)
