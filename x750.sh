@@ -81,45 +81,85 @@ import struct
 import smbus
 import sys
 import time
-
+import os
+import subprocess
 
 def readVoltage(bus):
 
-     address = 0x36
-     read = bus.read_word_data(address, 2)
-     swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-     voltage = swapped * 1.25 /1000/16
-     return voltage
-
+    address = 0x36
+    read = bus.read_word_data(address, 2)
+    swapped = struct.unpack("<H", struct.pack(">H", read))[0]
+    voltage = swapped * 1.25 /1000/16
+    return voltage
 
 def readCapacity(bus):
 
-     address = 0x36
-     read = bus.read_word_data(address, 4)
-     swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-     capacity = swapped/256
-     return capacity
-
+    address = 0x36
+    read = bus.read_word_data(address, 4)
+    swapped = struct.unpack("<H", struct.pack(">H", read))[0]
+    capacity = swapped/256
+    return capacity
+	
+def powerLog(logFile):
+	logInfo = time.strftime("%Y%m%j_%H%M%S",time.localtime()) + ",{:.2f}".format(tempVoltage) + ",{:.1f}\n".format(tempCapacity)
+    logFile.write(logInfo)
 
 bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
 
-while True:
+try:
+    #start_time variable
+    start_time = time.time()
+	
+	#parse command line arguments
+    logArgument = True
+	
+    currentStatus = ""
+    dateString = time.strftime("X750Log_%Y%m%j_%H%M%S.csv", time.localtime())
+    logFile = open(dateString,'w')
 
- print "******************"
- print "Voltage:%5.2fV" % readVoltage(bus)
+    previousVoltage = readVoltage(bus)
+    previousCapacity = readCapacity(bus)
+    
+    logFile.write("Date_Time,Voltage,Capacity/n")
 
- print "Battery:%5i%%" % readCapacity(bus)
+    while True:
+        print ("******************")
+        tempVoltage  = readVoltage(bus)
+        tempCapacity = readCapacity(bus)
+        
+        if(tempCapacity > previousCapacity):
+            currentStatus = "Charging"
+        elif(tempCapacity < previousCapacity):
+            currentStatus = "Discharging"
+        
+        print (currentStatus)
+        print ('Voltage:%5.2f V' % tempVoltage)
+        print ("Battery: {:.1f} %".format(tempCapacity))
+        
+		if(logArgument == True)
+			powerLog(logFile)
 
- if readCapacity(bus) == 100:
+        if readCapacity(bus) >= 100:
+            print ("Battery FULL")
 
-         print "Battery FULL"
-
- if readCapacity(bus) < 20:
-
-
-         print "Battery LOW"
- print "******************"
- time.sleep(2)
+        if readCapacity(bus) < 20:
+            print ("Battery LOW")
+        
+        print ("******************")
+		
+        previousVoltage  = tempVoltage
+        previousCapacity = tempCapacity
+        time.sleep(2)
+        os.system('clear')
+        
+except KeyboardInterrupt:
+    #output starting voltage & battery percentage
+    #output ending voltage & battery percentage
+    
+    end_time = time.time()
+    
+    #output runtime (end_time - start_time)
+    print ('\nRuntime = %5.2fs' % (end_time - start_time))
 ' > /home/pi/x750ups.py
 sudo chmod +x /home/pi/x750ups.py
 
