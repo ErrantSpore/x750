@@ -1,5 +1,5 @@
 # x750
-This is the safe shutdonw & reading Battery voltage and capacity script for x750
+This is the safe shutdown & reading battery voltage and capacity script for x750
 
 
 * https://geekworm.com
@@ -11,7 +11,7 @@ This is the safe shutdonw & reading Battery voltage and capacity script for x750
 ```shell
  sudo raspi-config
 ```
-Select 5 Interfacing Options and then  P5 I2C - Enable/Disable automatic loading. A prompt will appear asking Would you like the ARM I2C interface to be enabled?, select "Yes" 
+Select Interfacing Options and then  P5 I2C - Enable/Disable automatic loading. A prompt will appear asking Would you like the ARM I2C interface to be enabled?, select "Yes" 
 
 ##2. Install I2C-tools software package.
 ```shell
